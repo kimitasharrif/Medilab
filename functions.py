@@ -54,7 +54,7 @@ def passwordvalidity(password):
           return("You must have at least a symbol") 
 
      else: 
-          return("Password is valid")     
+          return True    
 
 # passwordvalidity(input("Enter your password: "))    
 
@@ -149,4 +149,4 @@ def decrypt(encrypted_data):
      decrypted_data = f.decrypt(encrypted_data.encode())
      print(decrypted_data.decode())
 
-decrypt("gAAAAABmUEKLyoQfQCEd_Tns1oPpWFt2nFQABB0VxuUiahophFWcgLSQoHv1FAJpIeaH-HkGyX7kyLh-Gsk-M7uiFtXVcT950g==")
+# decrypt("gAAAAABmUEKLyoQfQCEd_Tns1oPpWFt2nFQABB0VxuUiahophFWcgLSQoHv1FAJpIeaH-HkGyX7kyLh-Gsk-M7uiFtXVcT950g==")

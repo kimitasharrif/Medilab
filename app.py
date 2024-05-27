@@ -6,9 +6,9 @@ api = Api(app)
 
 # endpoints/ routes
 
-from views.views import MemberSignup
+from views.views import MemberSignup,MemberSignin
 
-api.ad_resource(MemberSignup, '/api/member_signup')
-
+api.add_resource(MemberSignup, '/api/member_signup')
+api.add_resource(MemberSignin, '/api/member_signin')
 if __name__ =='__main__':
     app.run(debug=True)
