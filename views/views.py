@@ -28,22 +28,22 @@ class MemberSignup(Resource):
             # instert into database
             sql = "insert into members (surname, others, gender, email, phone, dob, status, password, location_id) values(%s, %s, %s, %s, %s, %s, %s, %s,%s)"
             data = (surname, others, gender, email, phone, dob, status, hash_password(password), location_id)
-            try:
-                cursor.execute(sql, data)
-                connection.commit( )
-                send_sms(phone, "Registration successful")
-                return jsonify({ "message": "POST SUCCESSFUL. MEMBER SAVED" })
+            # try:
+            cursor.execute(sql, data)
+            connection.commit( )
+            send_sms(phone, "Registration successful")
+            return jsonify({ "message": "POST SUCCESSFUL. MEMBER SAVED" })
 
-            except:
-                connection.rollback()
-                return jsonify({ "message": "POST FAILED. MEMBER NOT SAVED" })
+            # except:
+            #     connection.rollback()
+            #     return jsonify({ "message": "POST FAILED. MEMBER NOT SAVED" })
 
         else:
             return jsonify({ "message": response })
 
 
 class MemberSignin(Resource):
-    def get(self):
+    def post(self):
         # get request from client
         data = request.json
         email = data ["email"]
@@ -64,10 +64,58 @@ class MemberSignin(Resource):
             is_matchpassword = hash_verify(password,hashed_password)
             if is_matchpassword == True:
                 return jsonify({"message":"LOG IN SUCCESIFUL"})
+            
+                # is_matchpassword == False:
             elif is_matchpassword == False:
-                return jsonify({"message":"LOG IN FAILED"})
+                return jsonify({ "message":"LOGIN FAILED" })
+
             else:
-                return jsonify({"message":"Something went wrong"})
-    
+
+                return jsonify({ "message": "Something went wrong" })
 
 
+class MemberProfile(Resource):
+    def post(self):
+        data = request.json
+        member_id = data["member_id"]
+        #  connect to db
+        connection = pymysql.connect(host='localhost', user='root',password='',database='Medilab')
+        sql = "select* from members where member_id = %s"
+        cursor =connection.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(sql, member_id)
+        count =cursor.rowcount
+        if count == 0:
+            return jsonify({"message":"Member does not exist"})
+        else:
+            member = cursor.fetchone()
+            return jsonify ({"message": member})
+
+class AddDependant(Resource):
+    def post(self):
+        data = request.json
+        member_id = data ["member_id"]
+        surname = data["surname"]
+        others = data["others"]
+        dob = data["dob"]
+        connection = pymysql.connect(host='localhost', user='root',password='',database='Medilab')
+        cursor= connection.cursor()
+        # insert into dependants table
+        sql="insert into dependants (member_id, surname, others, dob) values(%s,%s,%s,%s)"
+        data = (member_id, surname, others, dob)
+        # try:
+        cursor.execute(sql,data)
+        connection.commit()
+        return jsonify({"message":"POST SUCCESSIFUL.Dependant saved"})
+        # except:
+        #     connection.rollback()
+        #     return jsonify({"message":"POST FAILED.Dependant not saved"})
+        
+
+        # class ViewDependants(Resource):
+        #     def get(self):
+        #         data = request.json
+        #         member_id=
+        #         connection = pymysql.connect(host='localhost', user='root',password='',database='Medilab')
+        #         sql = "select* from dependants where member =%s"
+        #         cursor =connection.cursor(pymysql.cursors.DictCursor)
+                

@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS `members` (
 	`gender` text NOT NULL,
 	`email` varchar(255) NOT NULL,
 	`phone` varchar(255) NOT NULL,
-	`d.o.b` date NOT NULL,
+	`dob` date NOT NULL,
 	`status` boolean NOT NULL,
 	`password` varchar(255) NOT NULL,
 	`location_id` int NOT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `dependants` (
 	`dependant_id` int AUTO_INCREMENT NOT NULL UNIQUE,
 	`surname` text NOT NULL,
 	`others` text NOT NULL,
-	`d.o.b` date NOT NULL,
+	`dob` date NOT NULL,
 	`reg_date` timestamp NOT NULL,
 	`member_id` int NOT NULL,
 	PRIMARY KEY (`dependant_id`)

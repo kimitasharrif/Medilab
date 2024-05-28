@@ -103,8 +103,9 @@ def hash_verify(password, hashed_password):
      bytes = password.encode("utf-8")
      result = bcrypt.checkpw(bytes,hashed_password.encode())
      print(result)
+     return result
 
-hash_verify("12345","$2b$12$gkcS5tEZ5nuNakrrs65iLuExunAhw1IQHFde3/5aBNlQOyyRASt.i")
+# hash_verify("12345","$2b$12$gkcS5tEZ5nuNakrrs65iLuExunAhw1IQHFde3/5aBNlQOyyRASt.i")
 
 
 # encrypt data
