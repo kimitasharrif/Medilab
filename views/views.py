@@ -2,6 +2,10 @@ import pymysql
 from flask_restful import Resource
 from flask import *
 from functions import *
+# import JWT packages#
+from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required
+
+
 
 # Add a member class
 # member_signup and member_signin
@@ -63,7 +67,9 @@ class MemberSignin(Resource):
             hashed_password =member['password']
             is_matchpassword = hash_verify(password,hashed_password)
             if is_matchpassword == True:
-                return jsonify({"message":"LOG IN SUCCESIFUL"})
+                #including jwt
+                access_token = create_access_token(identity= member, fresh= True)
+                return jsonify({'access_token': access_token,'member':member})
             
                 # is_matchpassword == False:
             elif is_matchpassword == False:
@@ -75,6 +81,7 @@ class MemberSignin(Resource):
 
 
 class MemberProfile(Resource):
+    @jwt_required(fresh= True)  
     def post(self):
         data = request.json
         member_id = data["member_id"]
@@ -91,6 +98,7 @@ class MemberProfile(Resource):
             return jsonify ({"message": member})
 
 class AddDependant(Resource):
+    @jwt_required(fresh= True)
     def post(self):
         data = request.json
         member_id = data ["member_id"]
@@ -102,20 +110,94 @@ class AddDependant(Resource):
         # insert into dependants table
         sql="insert into dependants (member_id, surname, others, dob) values(%s,%s,%s,%s)"
         data = (member_id, surname, others, dob)
-        # try:
-        cursor.execute(sql,data)
-        connection.commit()
-        return jsonify({"message":"POST SUCCESSIFUL.Dependant saved"})
-        # except:
-        #     connection.rollback()
-        #     return jsonify({"message":"POST FAILED.Dependant not saved"})
+        try:
+            cursor.execute(sql,data)
+            connection.commit()
+            return jsonify({"message":"POST SUCCESSIFUL.Dependant saved"})
+        except:
+            connection.rollback()
+            return jsonify({"message":"POST FAILED.Dependant not saved"})
+        
+class ViewDependants(Resource):
+            @jwt_required(fresh= True)
+            def get(self):
+                data = request.json
+                member_id = data ["member_id"]
+                connection = pymysql.connect(host='localhost', user='root',password='',database='Medilab')
+                sql = "select* from dependants where member_id = %s"
+                cursor =connection.cursor(pymysql.cursors.DictCursor)
+                cursor.execute(sql,member_id)
+                if cursor.rowcount ==0:
+                    return jsonify({"message":"No dependants found"})
+                else:
+                    dependants = cursor.fetchall()
+                    return jsonify(dependants)
+
+class Laboratories(Resource):
+    def get(self):
+        connection = pymysql.connect(host='localhost', user='root',password='',database='Medilab')
+        sql = "select* from Laboratories"
+        cursor = connection.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(sql)
+        if cursor.rowcount ==0:
+            return jsonify({"message":"No labaratories"})
+        else:
+            labs = cursor.fetchall()
+            return jsonify(labs)
+
+class LabTests(Resource):
+    def post(self):
+        data = request.json
+        lab_id = data["lab_id"]
+        connection = pymysql.connect(host='localhost', user='root',password='',database='Medilab')
+        sql = "select * Lab_tests where lab_id = %s"
+        cursor = connection.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(sql, lab_id)
+        if cursor.rowcount ==0:
+            return jsonify({"message":"No lab tests found"})
+        else:
+            lab_tests = cursor.fetchall()
+            return jsonify(lab_tests)
+
+
+class MakeBooking(Resource):
+    def post(self):
+        data=request.json
+        member_id = data["member_id"]
+        booked_for = data["booked_for"]
+        dependant_id = data["dependant_id"]
+        test_id = data["test_id"]
+        appointment_date = data["appointment_date"]
+        appointment_time = data["appointment_time"]
+        where_taken = data["where_taken"]
+        latitude = data["latitude"]
+        longitude = data["longitude"]
+        status = data["status"]
+        lab_id = data[lab_id]
+        invoice_no = data["invoice_no"]
+        connection =pymysql.connect(host='localhost', user='root', password='', database='Medilab')
+        sql = "insert into  booking (member_id, booked_for, dependant_id, test_id,appointment_id, appointment_time,where_taken,latitude,longitude,status,lab_id,invoice_no) values($s,$s,$s,$s,$s,$s,$s,$s,$s,$s,$s,$s)"
+        cursor = connection.cursor(pymysql.cursors.DictCursor)
+        data = (member_id, booked_for, dependant_id, test_id,appointment_date, appointment_time,where_taken,latitude,longitude,status,lab_id,invoice_no)
+        try:
+            cursor.execute(sql, data)
+            cursor.commit()
+            return jsonify ({"message":"BOOKING VERIFIED"})
+        except:
+            connection.rollback()
+            return jsonify({"message":"BOOKING NOT VERIFIED"})
         
 
-        # class ViewDependants(Resource):
-        #     def get(self):
-        #         data = request.json
-        #         member_id=
-        #         connection = pymysql.connect(host='localhost', user='root',password='',database='Medilab')
-        #         sql = "select* from dependants where member =%s"
-        #         cursor =connection.cursor(pymysql.cursors.DictCursor)
-                
+class MyBookings(Resource):
+    def get(self):
+        data = request.json
+        member_id = data ["member_id"]
+        connection = pymysql.connect(host='localhost', user='root',password='',database='Medilab')
+        sql = "select* from booking where member_id = %s"
+        cursor =connection.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(sql,member_id)
+        if cursor.rowcount ==0:
+            return jsonify({"message":"No bookings found"})
+        else:
+            booking = cursor.fetchall()
+            return jsonify(booking)
