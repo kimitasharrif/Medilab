@@ -195,6 +195,9 @@ def mpesa_payment(amount, phone, invoice_no):
         headers = {
             "Authorization": access_token,
             "Content-Type": "application/json"
+
+
+            
         }
 
         url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"  # C2B URL
