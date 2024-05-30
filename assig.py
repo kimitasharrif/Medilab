@@ -178,3 +178,10 @@ def gen_pdf():
 #gen_pdf()
     
     # we codingis somehow difficult to learn  it require practising and understanding and practising
+
+
+
+
+# create a resource Addlabtests(post)
+# create a resource viewslabtest(post),lab_id=%s
+#

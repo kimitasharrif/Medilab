@@ -87,6 +87,27 @@ class LabSignin(Resource):
             else:
 
                 return jsonify({ "message": "Something went wrong" })
+            
+
+
+# view labs profile using lab_id
+class LabProfile(Resource):
+    def get(self):
+        data = request.json
+        lab_id =data["lab_id"]
+        connection = pymysql.connect(host='localhost', user='root',password='',database='Medilab') 
+        cursor =connection.cursor(pymysql.cursors.DictCursor) 
+        sql = "select* from Laboratories where lab_id = %s"
+        cursor.execute(sql,lab_id)
+        connection.commit()
+        if cursor.rowcount==0:
+            return jsonify({"message":"Lab doesn't exist"})
+        else:
+            labs = cursor.fetchone()
+            return jsonify({"message":labs})
+
+        
+
 
     
 
