@@ -32,15 +32,15 @@ class MemberSignup(Resource):
             # instert into database
             sql = "insert into members (surname, others, gender, email, phone, dob, status, password, location_id) values(%s, %s, %s, %s, %s, %s, %s, %s,%s)"
             data = (surname, others, gender, email, phone, dob, status, hash_password(password), location_id)
-            # try:
-            cursor.execute(sql, data)
-            connection.commit( )
-            send_sms(phone, "Registration successful")
-            return jsonify({ "message": "POST SUCCESSFUL. MEMBER SAVED" })
+            try:
+                cursor.execute(sql, data)
+                connection.commit( )
+                send_sms(phone, "Registration successful")
+                return jsonify({ "message": "POST SUCCESSFUL. MEMBER SAVED" })
 
-            # except:
-            #     connection.rollback()
-            #     return jsonify({ "message": "POST FAILED. MEMBER NOT SAVED" })
+            except:
+                connection.rollback()
+                return jsonify({ "message": "POST FAILED. MEMBER NOT SAVED" })
 
         else:
             return jsonify({ "message": response })
