@@ -5,6 +5,7 @@ from flask import*
 from functions import*
 import pymysql.cursors
 
+
 # jwt packages
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required
 
@@ -92,6 +93,7 @@ class LabSignin(Resource):
 
 # view labs profile using lab_id
 class LabProfile(Resource):
+    @jwt_required(fresh= True)
     def get(self):
         data = request.json
         lab_id =data["lab_id"]
@@ -107,10 +109,138 @@ class LabProfile(Resource):
             return jsonify({"message":labs})
 
         
-
+class Addlabtests(Resource):
+    @jwt_required(fresh= True)
+    def post(self):
+        data = request.json
+        lab_id = data["lab_id"]
+        test_name = data["test_name"]
+        test_description= data["test_description"]
+        test_cost = data["test_cost"]
+        test_discount = data["test_discount"]
+        connection = pymysql.connect(host='localhost', user='root',password='',database='Medilab')
+        cursor= connection.cursor()
+        # insert into dependants table
+        sql="insert into lab_tests (lab_id, test_name, test_description,test_cost, test_discount) values(%s,%s,%s,%s,%s)"
+        data = ( lab_id, test_name, test_description,test_cost, test_discount)
+        try:
+            cursor.execute(sql,data)
+            connection.commit()
+            return jsonify({"message":"POST SUCCESSIFUL.Lab test saved"})
+        except:
+            connection.rollback()
+            return jsonify({"message":"POST FAILED.Lab test not saved"})
+        
+class ViewLabtests(Resource):
+            @jwt_required(fresh= True)
+            def get(self):
+                data = request.json
+                lab_id = data ["lab_id"]
+                connection = pymysql.connect(host='localhost', user='root',password='',database='Medilab')
+                sql = "select* from Lab_tests where lab_id = %s"
+                cursor =connection.cursor(pymysql.cursors.DictCursor)
+                cursor.execute(sql,lab_id)
+                if cursor.rowcount ==0:
+                    return jsonify({"message":"No Lab test found"})
+                else:
+                    lab_tests = cursor.fetchall()
+                    return jsonify(lab_tests)
 
     
 
+class ViewLabBookings(Resource):
+    @jwt_required(fresh= True)
+    def get(self):
+        data = request.json
+        lab_id = data["lab_id"]
+        connection = pymysql.connect(host='localhost', user='root',password='',database='Medilab')
+        sql = "select* from booking where lab_id = %s"
+        cursor =connection.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(sql,lab_id)
+        if cursor.rowcount ==0:
+            return jsonify({"message":"No Lab Bookings found"})
+        else:
+           booking = cursor.fetchall()
+           # associate member id with the bookings
+           # we want to loop all the booking
+           for bookings in booking:
+               member_id = bookings["member_id"]
+               # return jsonify(member_id)
+               sql = "select* from booking where member_id =%s"
+               cursor = connection.cursor(pymysql.cursors.DictCursor)
+               cursor.execute(sql, member_id)
+               member = cursor.fetchone()
+               # results are attached to booing dictionary under key
+               bookings['key' ]= member
+            #    return jsonify(member)
+           
+                
 
+           # date and time was not convertible to json  
+           # hence we use json.dumps and json.loads 
+           import json
+            # we pass our booking to json.dumps 
+           bookings =json.dumps(booking, indent=1, sort_keys=True, default=str)         
+           return json.loads(bookings)
+
+
+
+class AddNurse(Resource):
+    @jwt_required(fresh= True)
+    def post(self):
+        data = request.json
+        surname= data["surname"]
+        others= data["others"]
+        gender= data["gender"]
+        lab_id = data["lab_id"]
+        connection = pymysql.connect(host='localhost', user='root',password='',database='Medilab')
+        cursor = connection.cursor()
+        # instert into database
+        sql = "insert into nurses (surname, others, gender, lab_id) values(%s, %s, %s, %s)"
+        data = (surname, others, gender,  lab_id)
+        try:
+            cursor.execute(sql, data)
+            connection.commit( )
+            return jsonify({ "message": "POST SUCCESSFUL. NURSE SAVED" })
+
+        except:
+            connection.rollback()
+            return jsonify({ "message": "POST FAILED. NURSE NOT SAVED" })
+        
+
+
+class ViewNurse(Resource):
+    def get(self):
+        data =request.json
+        nurse_id = data["nurse_id"]
+        connection = pymysql.connect(host='localhost', user='root',password='',database='Medilab')
+        sql = "select* from nurses where nurse_id = %s"
+        cursor =connection.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(sql,nurse_id)
+        if cursor.rowcount ==0:
+            return jsonify({"message":" Nurse Not found"})
+        else:
+            nurse_id = cursor.fetchone()
+            return jsonify(nurse_id)
+
+
+class TaskAllocation(Resource):
+    def post(self):
+        data = request.json
+        nurse_id = data["nurse_id"]
+        invoice_no =data["invoice_no"]
+        connection = pymysql.connect(host='localhost', user='root',password='',database='Medilab')
+        cursor = connection.cursor()
+        sql = "insert into nurse_lab_allocations (nurse_id,invoice_no)  values(%s,%s)"
+        data = (nurse_id,invoice_no)
+        try:
+            cursor.execute(sql,data)
+            connection.commit()
+            return jsonify({"message":"Task Allocated"})
+        except:
+            connection.rollback()
+            return jsonify({"message":"Task Allocation Failed"})
+
+        
 
 

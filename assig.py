@@ -184,4 +184,6 @@ def gen_pdf():
 
 # create a resource Addlabtests(post)
 # create a resource viewslabtest(post),lab_id=%s
-#
+# assignment :
+    #class Task allocatiojn(post),nurse_id,invoice_no
+    # check if we have invoice... if yes assign a nurse
