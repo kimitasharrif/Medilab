@@ -18,6 +18,7 @@ jwt = JWTManager(app)
 
 from views.views import MemberSignup,MemberSignin,MemberProfile,AddDependant, ViewDependants,Laboratories,LabTests,MakeBooking,MyBookings,Payments
 from views.views_dashboard import LabSignup,LabSignin,LabProfile,Addlabtests,ViewLabtests,ViewLabBookings,AddNurse,ViewNurse,TaskAllocation
+from views.view_nurse import Nurse_Signin,NurseProfile, ChangePassword
 api.add_resource(MemberSignup, '/api/member_signup')
 api.add_resource(MemberSignin, '/api/member_signin')
 api.add_resource(MemberProfile, '/api/member_profile')
@@ -38,5 +39,9 @@ api.add_resource(ViewLabBookings, '/api/viewlab_bookings')
 api.add_resource(AddNurse, '/api/add_nurse')
 api.add_resource(ViewNurse, '/api/view_nurse')
 api.add_resource(TaskAllocation, '/api/task_allocation')
+
+api.add_resource(Nurse_Signin, '/api/nursesignin')
+api.add_resource(NurseProfile, '/api/nurseprofile')
+api.add_resource(ChangePassword, '/api/changepassword')
 if __name__ =='__main__':
     app.run(debug=True)

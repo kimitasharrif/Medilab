@@ -192,12 +192,14 @@ class AddNurse(Resource):
         surname= data["surname"]
         others= data["others"]
         gender= data["gender"]
+        phone = data["phone"]
+        password = data["password"]
         lab_id = data["lab_id"]
         connection = pymysql.connect(host='localhost', user='root',password='',database='Medilab')
         cursor = connection.cursor()
         # instert into database
-        sql = "insert into nurses (surname, others, gender, lab_id) values(%s, %s, %s, %s)"
-        data = (surname, others, gender,  lab_id)
+        sql = "insert into nurses (surname, others, gender, lab_id, phone, password) values(%s, %s, %s, %s, %s, %s)"
+        data = (surname, others, gender,  lab_id, encrypt(phone), hash_password(password))
         try:
             cursor.execute(sql, data)
             connection.commit( )
@@ -225,21 +227,31 @@ class ViewNurse(Resource):
 
 
 class TaskAllocation(Resource):
+    @jwt_required(fresh= True)
     def post(self):
         data = request.json
         nurse_id = data["nurse_id"]
         invoice_no =data["invoice_no"]
         connection = pymysql.connect(host='localhost', user='root',password='',database='Medilab')
-        cursor = connection.cursor()
-        sql = "insert into nurse_lab_allocations (nurse_id,invoice_no)  values(%s,%s)"
-        data = (nurse_id,invoice_no)
-        try:
-            cursor.execute(sql,data)
-            connection.commit()
-            return jsonify({"message":"Task Allocated"})
-        except:
-            connection.rollback()
-            return jsonify({"message":"Task Allocation Failed"})
+        sql = "select* from booking where status ='Pending' "
+        cursor = connection.cursor( pymysql.cursors.DictCursor)
+        cursor.execute(sql)
+        count = cursor.rowcount
+        if count ==0:
+            return jsonify({"message":"No pending tasks"})
+        else:
+                 
+            sql1 = "insert into nurse_lab_allocations (nurse_id,invoice_no)  values(%s,%s)"
+            data = (nurse_id,invoice_no)
+            cursor1 = connection.cursor()
+
+            try:
+                cursor1.execute(sql1,data)
+                connection.commit()
+                return jsonify({"message":"Task Allocated"})
+            except:
+                connection.rollback()
+                return jsonify({"message":"Task Allocation Failed"})
 
         
 
