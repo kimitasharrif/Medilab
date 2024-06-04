@@ -74,6 +74,30 @@ class ChangePassword(Resource):
             return jsonify({"message":"Nurse not found"})
         else:
             nurse =cursor.fetchone()
-            hash_password= nurse["password"]
-            return jsonify(hash_password)
+            hashed_password= nurse["password"]
+            is_matchpassword = hash_verify(current_password,hashed_password)
+            if is_matchpassword:
+                rensponse = passwordvalidity(new_password)
+                if rensponse ==True:
+                    if new_password == confirm_password:
+                        # password match
+                        sql = "update nurses set password =%s where nurse_id=%s"
+                        cursor1= connection.cursor()
+                        data = ( hash_password(new_password), nurse_id)
+                        try:
+                            cursor1.execute(sql,data)
+                            connection.commit()
+                            return jsonify({"message":"Password changed"})
+                        except:
+                            connection.rollback()
+                            return jsonify({"message":"Password not changed"})
+                    else:
+                        # Password not match entry
+                        return jsonify({"message":"New password does not match with confirm password"})
+                else:
+                    return jsonify({"message":rensponse})
+                
+            
+            else:
+                return jsonify({"message":"old password is wrong"})
 

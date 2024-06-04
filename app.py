@@ -16,7 +16,7 @@ jwt = JWTManager(app)
 
 # endpoints/ routes
 
-from views.views import MemberSignup,MemberSignin,MemberProfile,AddDependant, ViewDependants,Laboratories,LabTests,MakeBooking,MyBookings,Payments
+from views.views import MemberSignup,MemberSignin,MemberProfile,AddDependant, ViewDependants,Laboratories,LabTests,MakeBooking,MyBookings,Payments, ViewAllLocations
 from views.views_dashboard import LabSignup,LabSignin,LabProfile,Addlabtests,ViewLabtests,ViewLabBookings,AddNurse,ViewNurse,TaskAllocation
 from views.view_nurse import Nurse_Signin,NurseProfile, ChangePassword
 api.add_resource(MemberSignup, '/api/member_signup')
@@ -29,6 +29,7 @@ api.add_resource(LabTests, '/api/lab_tests')
 api.add_resource(MakeBooking, '/api/make_booking')
 api.add_resource(MyBookings, '/api/my_bookings')
 api.add_resource(Payments, '/api/payments')
+api.add_resource(ViewAllLocations,'/api/viewalllocations')
 
 api.add_resource(LabSignup, '/api/lab_signup')
 api.add_resource(LabSignin, '/api/lab_signin')

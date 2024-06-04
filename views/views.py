@@ -221,7 +221,20 @@ class Payments(Resource):
         
 
 
+class ViewAllLocations(Resource):
+    def get(self):
+        data =request.json
+        location_id = data["location_id"]
+        connection = pymysql.connect(host='localhost', user='root',password='',database='Medilab')
+        sql = "select* from location where location_id = %s"
+        cursor =connection.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(sql,location_id)
+        if cursor.rowcount ==0:
+            return jsonify({"message":"No locations found"})
+        else:
+            locations = cursor.fetchall()
+            connection.commit()
+            return jsonify({"message":locations})
 
-        
 
 
